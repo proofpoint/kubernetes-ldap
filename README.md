@@ -1,8 +1,4 @@
 # kubernetes-ldap
-[![Build Status](https://travis-ci.org/kismatic/kubernetes-ldap.svg?branch=master)](https://travis-ci.org/kismatic/kubernetes-ldap)
-[![Go Report Card](https://goreportcard.com/badge/github.com/kismatic/kubernetes-ldap)](https://goreportcard.com/report/github.com/kismatic/kubernetes-ldap)
-[![GoDoc](https://godoc.org/github.com/kismatic/kubernetes-ldap?status.svg)](https://godoc.org/github.com/kismatic/kubernetes-ldap)
-
 Lightweight Directory Access Protocol (LDAP) for Kubernetes™
 
 Getting Started
@@ -87,19 +83,6 @@ Kubernetes LDAP is at an early stage and under active development. We do not rec
 ## Contributing to Kubernetes LDAP
 
 Kubernetes LDAP is an open source project and contributors are welcome!
-Join us on IRC at [#kismatic on freenode.net](http://webchat.freenode.net/?channels=%23kismatic&uio=d4), [file an issue](https://github.com/kismatic/kubernetes-ldap/issues) here on Github.
-
-### Are you ready to add to the discussion?
-
-We have presence on:
-
- * [Twitter](https://twitter.com/kismatic)
-
-For Q&A, our threads are at:
-
- * [Stack Overflow](http://stackoverflow.com/questions/tagged/kismatic)
- * [Slack](http://slack.k6c.io/)
-
 
 ## Licensing
 

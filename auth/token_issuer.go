@@ -3,10 +3,10 @@ package auth
 import (
 	"net/http"
 
-	"github.com/apprenda-kismatic/kubernetes-ldap/ldap"
-	"github.com/apprenda-kismatic/kubernetes-ldap/token"
 	goldap "github.com/go-ldap/ldap"
 	"github.com/golang/glog"
+	"github.com/rajatjindal83/kubernetes-ldap/ldap"
+	"github.com/rajatjindal83/kubernetes-ldap/token"
 	"strings"
 )
 
@@ -50,7 +50,7 @@ func (lti *LDAPTokenIssuer) ServeHTTP(resp http.ResponseWriter, req *http.Reques
 }
 
 func (lti *LDAPTokenIssuer) getGroupsFromMembersOf(membersOf []string) []string {
-	groupsOf := []string {}
+	groupsOf := []string{}
 	uniqueGroups := make(map[string]struct{})
 
 	for _, memberOf := range membersOf {
@@ -73,13 +73,13 @@ func (lti *LDAPTokenIssuer) getGroupsFromMembersOf(membersOf []string) []string 
 		}
 	}
 
-    return groupsOf
+	return groupsOf
 }
 
 func (lti *LDAPTokenIssuer) createToken(ldapEntry *goldap.Entry) *token.AuthToken {
 	return &token.AuthToken{
 		Username: ldapEntry.GetAttributeValue("mail"),
-		Groups: lti.getGroupsFromMembersOf(ldapEntry.GetAttributeValues("memberOf")),
+		Groups:   lti.getGroupsFromMembersOf(ldapEntry.GetAttributeValues("memberOf")),
 		Assertions: map[string]string{
 			"ldapServer": lti.LDAPServer,
 			"userDN":     ldapEntry.DN,

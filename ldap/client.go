@@ -60,7 +60,7 @@ func (c *Client) Authenticate(username, password string) (*ldap.Entry, error) {
 	case len(res.Entries) > 1:
 		return nil, fmt.Errorf("Multiple entries found for the search filter '%s': %+v", req.Filter, res.Entries)
 	}
-	
+
 	// Now that we know the user exists within the BaseDN scope
 	// let's do user bind to check credentials using the full DN instead of
 	// the attribute used for search

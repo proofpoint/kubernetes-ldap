@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/apprenda-kismatic/kubernetes-ldap/token"
 	"github.com/golang/glog"
+	"github.com/rajatjindal83/kubernetes-ldap/token"
 )
 
 // TokenWebhook responds to requests from the K8s authentication webhook
@@ -50,7 +50,7 @@ func (tw *TokenWebhook) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		Authenticated: true,
 		User: UserInfo{
 			Username: token.Username,
-			Groups: token.Groups,
+			Groups:   token.Groups,
 		},
 	}
 

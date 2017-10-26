@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/square/go-jose"
+	jose "gopkg.in/square/go-jose.v1"
 )
 
 // Signer signs an issued token

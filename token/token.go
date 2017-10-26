@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	jose "github.com/square/go-jose"
+	jose "gopkg.in/square/go-jose.v1"
 )
 
 const (
@@ -22,7 +22,7 @@ var curveEll = elliptic.P256()
 // AuthToken contains information about the authenticated user
 type AuthToken struct {
 	Username   string
-	Groups []string
+	Groups     []string
 	Assertions map[string]string
 }
 
