@@ -5,8 +5,8 @@ import (
 
 	goldap "github.com/go-ldap/ldap"
 	"github.com/golang/glog"
-	"github.com/rajatjindal83/kubernetes-ldap/ldap"
-	"github.com/rajatjindal83/kubernetes-ldap/token"
+	"github.com/proofpoint/kubernetes-ldap/ldap"
+	"github.com/proofpoint/kubernetes-ldap/token"
 	"strings"
 )
 

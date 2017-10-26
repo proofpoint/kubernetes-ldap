@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/rajatjindal83/kubernetes-ldap/cmd"
+import "github.com/proofpoint/kubernetes-ldap/cmd"
 
 func main() {
 	cmd.Execute()

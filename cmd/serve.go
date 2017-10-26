@@ -22,9 +22,9 @@ import (
 	"os"
 
 	"github.com/golang/glog"
-	"github.com/rajatjindal83/kubernetes-ldap/auth"
-	"github.com/rajatjindal83/kubernetes-ldap/ldap"
-	"github.com/rajatjindal83/kubernetes-ldap/token"
+	"github.com/proofpoint/kubernetes-ldap/auth"
+	"github.com/proofpoint/kubernetes-ldap/ldap"
+	"github.com/proofpoint/kubernetes-ldap/token"
 	"github.com/spf13/cobra"
 
 	"github.com/mitchellh/go-homedir"
@@ -122,10 +122,9 @@ func initConfig() {
 	}
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println(err)
+	if err := viper.ReadInConfig(); err == nil {
+		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
-	fmt.Println("Using config file:", viper.ConfigFileUsed())
 }
 
 func validate() {
@@ -224,6 +223,6 @@ func serve() error {
 		MinVersion: tls.VersionTLS10,
 	}
 
-	glog.Fatal(server.ListenAndServeTLS(*flTLSCertFile, *flTLSPrivateKeyFile))
+	glog.Fatal(server.ListenAndServeTLS(serverTlsCertFile, serverTlsPrivateKeyFile))
 	return nil
 }

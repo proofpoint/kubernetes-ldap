@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/golang/glog"
-	"github.com/rajatjindal83/kubernetes-ldap/token"
+	"github.com/proofpoint/kubernetes-ldap/token"
 )
 
 // TokenWebhook responds to requests from the K8s authentication webhook
