@@ -80,7 +80,7 @@ func (lti *LDAPTokenIssuer) getGroupsFromMembersOf(membersOf []string) []string 
 
 func (lti *LDAPTokenIssuer) createToken(ldapEntry *goldap.Entry) *token.AuthToken {
 	return &token.AuthToken{
-		Username: ldapEntry.GetAttributeValue("mail"),
+		Username: ldapEntry.DN,
 		Groups:   lti.getGroupsFromMembersOf(ldapEntry.GetAttributeValues("memberOf")),
 		Assertions: map[string]string{
 			"ldapServer": lti.LDAPServer,

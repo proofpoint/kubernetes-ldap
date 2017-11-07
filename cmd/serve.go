@@ -149,7 +149,7 @@ func validate() {
 	ldapSkipTlsVerification = viper.GetBool("ldap-skip-tls-verification")
 
 	tokenTtl = viper.GetDuration("token-ttl")
-
+	
 	serverPort = cast.ToUint(viper.Get("port"))
 
 	requireFlag("--ldap-host", ldapHost)

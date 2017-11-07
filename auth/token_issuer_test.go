@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-ldap/ldap"
 	"github.com/proofpoint/kubernetes-ldap/token"
+	"time"
 )
 
 type dummyLDAP struct {
@@ -93,9 +94,11 @@ func TestCreateToken(t *testing.T) {
 	e := &ldap.Entry{
 		DN: "some-dn",
 	}
-	lti := &LDAPTokenIssuer{
+
+	lti := LDAPTokenIssuer{
 		LDAPServer: "some-ldap-server",
 	}
+
 	expectedAssertions := map[string]string{
 		"ldapServer": lti.LDAPServer,
 		"userDN":     e.DN,
@@ -109,6 +112,79 @@ func TestCreateToken(t *testing.T) {
 	for k, v := range expectedAssertions {
 		if tok.Assertions[k] != v {
 			t.Errorf("Expected assertion '%s' to be '%s'. Got '%s'", k, v, tok.Assertions[k])
+		}
+	}
+}
+
+func TestTTL(t *testing.T) {
+	e := &ldap.Entry{
+		DN: "some-dn",
+	}
+
+	cases := []struct {
+		TTL time.Duration
+		expectedTTL time.Duration
+	} {
+		{
+			expectedTTL: 24 * time.Hour,
+		},
+		{
+			TTL: 5 * time.Second,
+			expectedTTL: 5* time.Second,
+		},
+	}
+
+	for i, c := range cases {
+		lti := LDAPTokenIssuer{
+			LDAPServer: "some-ldap-server",
+			TTL: c.TTL,
+		}
+
+		tok := lti.createToken(e)
+		now := time.Now().UnixNano() / int64(time.Millisecond)
+		expectedExpiration := now + int64(time.Duration(c.TTL) / time.Millisecond)
+
+		if tok.Expiration > expectedExpiration {
+			t.Errorf("Case: %d. Expiration expected: %d, got: %d", i, tok.Expiration, expectedExpiration)
+		}
+	}
+}
+
+func TestTokenExpired(t *testing.T) {
+	e := &ldap.Entry{
+		DN: "some-dn",
+	}
+
+	cases := []struct {
+		TTL time.Duration
+		sleep time.Duration
+		expectedTokenExpired bool
+	} {
+		{
+			TTL: 200 * time.Millisecond,
+			sleep: 100 * time.Millisecond,
+			expectedTokenExpired: false,
+		},
+		{
+			TTL: 200 * time.Millisecond,
+			sleep: 300 * time.Millisecond,
+			expectedTokenExpired: true,
+		},
+	}
+
+	for i, c := range cases {
+		lti := LDAPTokenIssuer{
+			LDAPServer: "some-ldap-server",
+			TTL: c.TTL,
+		}
+
+		tok := lti.createToken(e)
+
+		time.Sleep(c.sleep)
+		tokenExpired := token.TokenExpired(tok)
+
+		if tokenExpired != c.expectedTokenExpired {
+			t.Errorf("case %d. Expected: %v, Got: %v", i, c.expectedTokenExpired, tokenExpired)
 		}
 	}
 }
