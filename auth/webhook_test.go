@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/proofpoint/kubernetes-ldap/token"
+	"io/ioutil"
 )
 
 type dummyVerifier struct {
@@ -28,6 +29,7 @@ func TestWebhook(t *testing.T) {
 		verifyErr     error
 		authenticated bool
 		expectedCode  int
+		expectedResponseBody string
 	}{
 		{
 			// Happy path. Token is valid
@@ -44,6 +46,15 @@ func TestWebhook(t *testing.T) {
 			verifyErr:     errors.New("Invalid token provided"),
 			authenticated: false,
 			expectedCode:  http.StatusUnauthorized,
+			expectedResponseBody: "Invalid token provided",
+		},
+		{
+			// The token provided by user has expired
+			reqMethod:     "POST",
+			verifyErr:     errors.New("token has expired"),
+			authenticated: false,
+			expectedCode:  http.StatusUnauthorized,
+			expectedResponseBody: "token has expired",
 		},
 		{
 			// Incorrect method used on endpoint
@@ -76,6 +87,15 @@ func TestWebhook(t *testing.T) {
 
 		if rec.Code != c.expectedCode {
 			t.Errorf("Case: %d: Expected '%d' from server. Got '%d", i, c.expectedCode, rec.Code)
+		}
+
+		//assertion for response body when returning 401
+		if rec.Code == http.StatusUnauthorized {
+			body, _ := ioutil.ReadAll(rec.Body)
+			actualResponseBody := string(body)
+			if actualResponseBody != c.expectedResponseBody {
+				t.Errorf("expected response %s, actual response %s", c.expectedResponseBody, actualResponseBody)
+			}
 		}
 
 		// Assertions for the 200 status case
