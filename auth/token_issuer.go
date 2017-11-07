@@ -3,7 +3,6 @@ package auth
 import (
 	"net/http"
 
-	"fmt"
 	goldap "github.com/go-ldap/ldap"
 	"github.com/golang/glog"
 	"github.com/proofpoint/kubernetes-ldap/ldap"
@@ -18,7 +17,7 @@ type LDAPTokenIssuer struct {
 	LDAPServer        string
 	LDAPAuthenticator ldap.Authenticator
 	TokenSigner       token.Signer
-	Ttl               time.Duration
+	TTL               time.Duration
 }
 
 func (lti *LDAPTokenIssuer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
@@ -93,7 +92,7 @@ func (lti *LDAPTokenIssuer) createToken(ldapEntry *goldap.Entry) *token.AuthToke
 
 func (lti *LDAPTokenIssuer) getExpirationTime() int64 {
 	nowMillis := time.Now().UnixNano() / int64(time.Millisecond)
-	ttlMillis := int64(time.Duration(lti.Ttl) / time.Millisecond)
+	ttlMillis := int64(time.Duration(lti.TTL) / time.Millisecond)
 
 	return nowMillis + ttlMillis
 }

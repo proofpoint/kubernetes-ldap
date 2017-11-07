@@ -215,7 +215,7 @@ func serve() error {
 	ldapTokenIssuer := &auth.LDAPTokenIssuer{
 		LDAPAuthenticator: ldapClient,
 		TokenSigner:       tokenSigner,
-		Ttl:               tokenTtl,
+		TTL:               tokenTtl,
 	}
 
 	// Endpoint for authenticating with token
