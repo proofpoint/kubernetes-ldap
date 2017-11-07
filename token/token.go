@@ -24,6 +24,7 @@ type AuthToken struct {
 	Username   string
 	Groups     []string
 	Assertions map[string]string
+	Expiration int64
 }
 
 // GenerateKeypair generates a public and private ECDSA key, to be

@@ -42,6 +42,8 @@ func (tw *TokenWebhook) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		glog.Errorf("Token is invalid: %v", err)
 		resp.WriteHeader(http.StatusUnauthorized)
+		resp.Header().Add("Content-Type", "text/plain")
+		resp.Write([]byte(err.Error()))
 		return
 	}
 

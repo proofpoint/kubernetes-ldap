@@ -3,11 +3,13 @@ package auth
 import (
 	"net/http"
 
+	"fmt"
 	goldap "github.com/go-ldap/ldap"
 	"github.com/golang/glog"
 	"github.com/proofpoint/kubernetes-ldap/ldap"
 	"github.com/proofpoint/kubernetes-ldap/token"
 	"strings"
+	"time"
 )
 
 // LDAPTokenIssuer issues cryptographically secure tokens after authenticating the
@@ -16,6 +18,7 @@ type LDAPTokenIssuer struct {
 	LDAPServer        string
 	LDAPAuthenticator ldap.Authenticator
 	TokenSigner       token.Signer
+	Ttl               time.Duration
 }
 
 func (lti *LDAPTokenIssuer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
@@ -84,5 +87,13 @@ func (lti *LDAPTokenIssuer) createToken(ldapEntry *goldap.Entry) *token.AuthToke
 			"ldapServer": lti.LDAPServer,
 			"userDN":     ldapEntry.DN,
 		},
+		Expiration: lti.getExpirationTime(),
 	}
+}
+
+func (lti *LDAPTokenIssuer) getExpirationTime() int64 {
+	nowMillis := time.Now().UnixNano() / int64(time.Millisecond)
+	ttlMillis := int64(time.Duration(lti.Ttl) / time.Millisecond)
+
+	return nowMillis + ttlMillis
 }

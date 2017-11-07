@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/proofpoint/kubernetes-ldap/token"
 	"github.com/go-ldap/ldap"
+	"github.com/proofpoint/kubernetes-ldap/token"
 )
 
 type dummyLDAP struct {

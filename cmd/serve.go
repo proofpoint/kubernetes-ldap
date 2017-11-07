@@ -30,6 +30,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
+	"time"
 )
 
 //different flags supported by serve command
@@ -51,6 +52,8 @@ var (
 
 	ldapSkipTlsVerification bool
 	ldapUseInsecure         bool
+
+	tokenTtl time.Duration
 )
 
 // serveCmd represents the serve command
@@ -102,6 +105,8 @@ func init() {
 	RootCmd.Flags().BoolVar(&ldapSkipTlsVerification, "ldap-skip-tls-verification", false, "Skip LDAP server TLS verification")
 	RootCmd.Flags().BoolVar(&ldapUseInsecure, "use-insecure", false, "Disable LDAP TLS")
 
+	RootCmd.Flags().DurationVar(&tokenTtl, "token-ttl", 24*time.Hour, "TTL for the token")
+
 	viper.BindPFlags(RootCmd.Flags())
 	flag.CommandLine.Parse([]string{})
 }
@@ -142,6 +147,8 @@ func validate() {
 
 	ldapUseInsecure = viper.GetBool("use-insecure")
 	ldapSkipTlsVerification = viper.GetBool("ldap-skip-tls-verification")
+
+	tokenTtl = viper.GetDuration("token-ttl")
 
 	serverPort = cast.ToUint(viper.Get("port"))
 
@@ -208,6 +215,7 @@ func serve() error {
 	ldapTokenIssuer := &auth.LDAPTokenIssuer{
 		LDAPAuthenticator: ldapClient,
 		TokenSigner:       tokenSigner,
+		Ttl:               tokenTtl,
 	}
 
 	// Endpoint for authenticating with token
