@@ -122,27 +122,27 @@ func TestTTL(t *testing.T) {
 	}
 
 	cases := []struct {
-		TTL time.Duration
+		TTL         time.Duration
 		expectedTTL time.Duration
-	} {
+	}{
 		{
 			expectedTTL: 24 * time.Hour,
 		},
 		{
-			TTL: 5 * time.Second,
-			expectedTTL: 5* time.Second,
+			TTL:         5 * time.Second,
+			expectedTTL: 5 * time.Second,
 		},
 	}
 
 	for i, c := range cases {
 		lti := LDAPTokenIssuer{
 			LDAPServer: "some-ldap-server",
-			TTL: c.TTL,
+			TTL:        c.TTL,
 		}
 
 		tok := lti.createToken(e)
 		now := time.Now().UnixNano() / int64(time.Millisecond)
-		expectedExpiration := now + int64(time.Duration(c.TTL) / time.Millisecond)
+		expectedExpiration := now + int64(time.Duration(c.TTL)/time.Millisecond)
 
 		if tok.Expiration > expectedExpiration {
 			t.Errorf("Case: %d. Expiration expected: %d, got: %d", i, tok.Expiration, expectedExpiration)
@@ -156,18 +156,18 @@ func TestTokenExpired(t *testing.T) {
 	}
 
 	cases := []struct {
-		TTL time.Duration
-		sleep time.Duration
+		TTL                  time.Duration
+		sleep                time.Duration
 		expectedTokenExpired bool
-	} {
+	}{
 		{
-			TTL: 200 * time.Millisecond,
-			sleep: 100 * time.Millisecond,
+			TTL:                  200 * time.Millisecond,
+			sleep:                100 * time.Millisecond,
 			expectedTokenExpired: false,
 		},
 		{
-			TTL: 200 * time.Millisecond,
-			sleep: 300 * time.Millisecond,
+			TTL:                  200 * time.Millisecond,
+			sleep:                300 * time.Millisecond,
 			expectedTokenExpired: true,
 		},
 	}
@@ -175,7 +175,7 @@ func TestTokenExpired(t *testing.T) {
 	for i, c := range cases {
 		lti := LDAPTokenIssuer{
 			LDAPServer: "some-ldap-server",
-			TTL: c.TTL,
+			TTL:        c.TTL,
 		}
 
 		tok := lti.createToken(e)

@@ -24,11 +24,11 @@ func (dv *dummyVerifier) Verify(s string) (token *token.AuthToken, err error) {
 func TestWebhook(t *testing.T) {
 
 	cases := []struct {
-		reqMethod     string
-		verifiedToken *token.AuthToken
-		verifyErr     error
-		authenticated bool
-		expectedCode  int
+		reqMethod            string
+		verifiedToken        *token.AuthToken
+		verifyErr            error
+		authenticated        bool
+		expectedCode         int
 		expectedResponseBody string
 	}{
 		{
@@ -42,18 +42,18 @@ func TestWebhook(t *testing.T) {
 		},
 		{
 			// The token provided by user is invalid
-			reqMethod:     "POST",
-			verifyErr:     errors.New("Invalid token provided"),
-			authenticated: false,
-			expectedCode:  http.StatusUnauthorized,
+			reqMethod:            "POST",
+			verifyErr:            errors.New("Invalid token provided"),
+			authenticated:        false,
+			expectedCode:         http.StatusUnauthorized,
 			expectedResponseBody: "Invalid token provided",
 		},
 		{
 			// The token provided by user has expired
-			reqMethod:     "POST",
-			verifyErr:     errors.New("token has expired"),
-			authenticated: false,
-			expectedCode:  http.StatusUnauthorized,
+			reqMethod:            "POST",
+			verifyErr:            errors.New("token has expired"),
+			authenticated:        false,
+			expectedCode:         http.StatusUnauthorized,
 			expectedResponseBody: "token has expired",
 		},
 		{
