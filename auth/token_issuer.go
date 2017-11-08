@@ -56,8 +56,8 @@ func (lti *LDAPTokenIssuer) getGroupsFromMembersOf(membersOf []string) []string 
 	uniqueGroups := make(map[string]struct{})
 
 	for _, memberOf := range membersOf {
-		splitted_str := strings.Split(memberOf, ",")
-		for _, element := range splitted_str {
+		splittedStr := strings.Split(memberOf, ",")
+		for _, element := range splittedStr {
 			element = strings.ToLower(element)
 			if !strings.Contains(element, "cn=") {
 				continue

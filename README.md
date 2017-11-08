@@ -1,7 +1,7 @@
 # kubernetes-ldap
 Lightweight Directory Access Protocol (LDAP) for Kubernetes™
 
-[![Build Status](https://travis-ci.org/proofpoint/kubernetes-ldap.svg?branch=master)](https://travis-ci.org/proofpoint/kubernetes-ldap)
+[![Build Status](https://travis-ci.org/proofpoint/kubernetes-ldap.svg?branch=master)](https://travis-ci.org/proofpoint/kubernetes-ldap) [![Go Report Card](https://goreportcard.com/badge/github.com/proofpoint/kubernetes-ldap)](https://goreportcard.com/report/github.com/proofpoint/kubernetes-ldap)
 
 Getting Started
 ===============

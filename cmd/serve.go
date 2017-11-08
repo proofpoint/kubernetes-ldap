@@ -56,7 +56,7 @@ var (
 	tokenTtl time.Duration
 )
 
-// serveCmd represents the serve command
+// RootCmd represents the serve command
 var RootCmd = &cobra.Command{
 	Use:   "kubernetes-ldap",
 	Short: "Start the kubernetes-ldap server",
@@ -69,6 +69,7 @@ var RootCmd = &cobra.Command{
 	},
 }
 
+// KeypairFilename to be used
 const KeypairFilename = "signing"
 
 // Execute adds all child commands to the root command and sets flags appropriately.
