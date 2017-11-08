@@ -21,7 +21,7 @@ push:
 rm:
 	docker rm $(NAME)-$(INSTANCE)
 
-release: build
+release: docker
 	make push -e VERSION=$(VERSION)
 
 test:
