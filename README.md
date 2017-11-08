@@ -1,6 +1,8 @@
 # kubernetes-ldap
 Lightweight Directory Access Protocol (LDAP) for Kubernetes™
 
+[![Build Status](https://travis-ci.org/proofpoint/kubernetes-ldap.svg?branch=master)](https://travis-ci.org/proofpoint/kubernetes-ldap)
+
 Getting Started
 ===============
 This project provides an LDAP authentication webhook for Kubernetes. 
