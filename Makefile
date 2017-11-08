@@ -10,6 +10,9 @@ INSTANCE = default
 default: fmt vet test build
 
 build: vendor
+	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/kubernetes-ldap .
+
+docker:
 	docker build -t $(NS)/$(REPO):$(VERSION) .
 
 push:
