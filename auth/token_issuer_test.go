@@ -68,6 +68,7 @@ func TestTokenIssuer(t *testing.T) {
 		lti := LDAPTokenIssuer{
 			LDAPAuthenticator: dummyLDAP{c.ldapEntry, c.ldapErr},
 			TokenSigner:       dummySigner{"signedToken", c.signerErr},
+			UsernameAttribute: "mail",
 		}
 
 		req, err := http.NewRequest("GET", "", nil)
@@ -93,25 +94,76 @@ func TestTokenIssuer(t *testing.T) {
 func TestCreateToken(t *testing.T) {
 	e := &ldap.Entry{
 		DN: "some-dn",
+		Attributes: []*ldap.EntryAttribute{
+			{
+				Name:   "uid",
+				Values: []string{"username"},
+			},
+			{
+				Name:   "mail",
+				Values: []string{"username@example.com"},
+			},
+			{
+				Name: "memberOf",
+				Values: []string{
+					"cn=sg-grp1,ou=ORG,ou=Groups,dc=lab,dc=example,dc=com",
+					"CN=sg-grp2,ou=ORG,ou=Groups,dc=lab,dc=example,dc=com",
+					"CN=sg-grp1,ou=ORG2,ou=Groups,dc=lab,dc=example,dc=com",
+				},
+			},
+		},
 	}
 
-	lti := LDAPTokenIssuer{
-		LDAPServer: "some-ldap-server",
+	cases := []struct {
+		name               string
+		tokenIssuer        LDAPTokenIssuer
+		expectedAssertions map[string]string
+		expectedUsername   string
+		expectedGroups     []string
+	}{
+		{
+			name: "get mail as username attribute",
+			tokenIssuer: LDAPTokenIssuer{
+				LDAPServer:        "some-ldap-server",
+				UsernameAttribute: "mail",
+			},
+			expectedAssertions: map[string]string{
+				"ldapServer": "some-ldap-server",
+				"userDN":     e.DN,
+			},
+			expectedUsername: "username@example.com",
+			expectedGroups: []string{
+				"sg-grp1",
+				"sg-grp2",
+			},
+		},
+		{
+			name: "verify backward compatibility",
+			tokenIssuer: LDAPTokenIssuer{
+				LDAPServer: "some-ldap-server",
+			},
+			expectedAssertions: map[string]string{
+				"ldapServer": "some-ldap-server",
+				"userDN":     e.DN,
+			},
+			expectedUsername: e.DN,
+			expectedGroups: []string{
+				"sg-grp1",
+				"sg-grp2",
+			},
+		},
 	}
 
-	expectedAssertions := map[string]string{
-		"ldapServer": lti.LDAPServer,
-		"userDN":     e.DN,
-	}
+	for _, testcase := range cases {
+		tok := testcase.tokenIssuer.createToken(e)
+		if tok.Username != testcase.expectedUsername {
+			t.Errorf("Unexpected username in token. Expected: '%s'. Got: '%s'.", testcase.expectedUsername, tok.Username)
+		}
 
-	tok := lti.createToken(e)
-	if tok.Username != e.DN {
-		t.Errorf("Unexpected username in token. Expected: '%s'. Got: '%s'.", e.DN, tok.Username)
-	}
-
-	for k, v := range expectedAssertions {
-		if tok.Assertions[k] != v {
-			t.Errorf("Expected assertion '%s' to be '%s'. Got '%s'", k, v, tok.Assertions[k])
+		for k, v := range testcase.expectedAssertions {
+			if tok.Assertions[k] != v {
+				t.Errorf("Expected assertion '%s' to be '%s'. Got '%s'", k, v, tok.Assertions[k])
+			}
 		}
 	}
 }

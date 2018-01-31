@@ -25,7 +25,7 @@ release: docker
 	make push -e VERSION=$(VERSION)
 
 test:
-	go test ./...
+	go test ./... -cover
 
 fmt:
 	go fmt ./...

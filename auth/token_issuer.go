@@ -18,6 +18,7 @@ type LDAPTokenIssuer struct {
 	LDAPAuthenticator ldap.Authenticator
 	TokenSigner       token.Signer
 	TTL               time.Duration
+	UsernameAttribute string
 }
 
 func (lti *LDAPTokenIssuer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
@@ -79,8 +80,13 @@ func (lti *LDAPTokenIssuer) getGroupsFromMembersOf(membersOf []string) []string 
 }
 
 func (lti *LDAPTokenIssuer) createToken(ldapEntry *goldap.Entry) *token.AuthToken {
+	username := ldapEntry.DN
+	if lti.UsernameAttribute != "" {
+		username = ldapEntry.GetAttributeValue(lti.UsernameAttribute)
+	}
+
 	return &token.AuthToken{
-		Username: ldapEntry.DN,
+		Username: username,
 		Groups:   lti.getGroupsFromMembersOf(ldapEntry.GetAttributeValues("memberOf")),
 		Assertions: map[string]string{
 			"ldapServer": lti.LDAPServer,

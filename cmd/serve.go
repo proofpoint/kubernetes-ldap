@@ -45,6 +45,7 @@ var (
 
 	ldapSearchUserDn       string
 	ldapSearchUserPassword string
+	usernameAttribute      string
 
 	serverPort              uint
 	serverTlsCertFile       string
@@ -98,6 +99,7 @@ func init() {
 
 	RootCmd.Flags().StringVar(&ldapSearchUserDn, "ldap-search-user-dn", "", "Search user DN for this app to find users (e.g.: cn=admin,dc=example,dc=com).")
 	RootCmd.Flags().StringVar(&ldapSearchUserPassword, "ldap-search-user-password", "", "Search user password")
+	RootCmd.Flags().StringVar(&usernameAttribute, "username-attribute", "uid", "ldap attribute to use for Username inside token")
 
 	RootCmd.Flags().UintVar(&serverPort, "port", 4000, "Local port this proxy server will run on")
 	RootCmd.Flags().StringVar(&serverTlsCertFile, "tls-cert-file", "", "(Required) File containing x509 Certificate for HTTPS.  (CA cert, if any, concatenated after server cert) .")
@@ -157,6 +159,7 @@ func validate() {
 
 	requireFlag("--tls-cert-file", serverTlsCertFile)
 	if _, err := os.Stat(serverTlsCertFile); os.IsNotExist(err) {
+
 		fmt.Fprintf(os.Stderr, "file %s does not exist\n", serverTlsCertFile)
 		os.Exit(1)
 	}
@@ -216,6 +219,7 @@ func serve() error {
 		LDAPAuthenticator: ldapClient,
 		TokenSigner:       tokenSigner,
 		TTL:               tokenTtl,
+		UsernameAttribute: usernameAttribute,
 	}
 
 	// Endpoint for authenticating with token
