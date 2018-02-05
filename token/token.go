@@ -50,3 +50,9 @@ func GenerateKeypair(filename string) (err error) {
 	err = ioutil.WriteFile(filename+".pub", pubKeyPEM, os.FileMode(0644))
 	return
 }
+
+func KeypairExists(filename string) bool {
+	_, err1 := ioutil.ReadFile(filename + ".priv")
+	_, err2 := ioutil.ReadFile(filename + ".pub")
+	return (err1 == nil && err2 == nil)
+}

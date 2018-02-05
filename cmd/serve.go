@@ -182,8 +182,12 @@ func requireFlag(flagName string, flagValue string) {
 }
 
 func serve() error {
-	if err := token.GenerateKeypair(keypairPrefix); err != nil {
-		glog.Errorf("Error generating key pair: %v", err)
+	if token.KeypairExists(keypairPrefix) {
+		glog.Infof("Using existing keypair in %v", keypairPrefix)
+	} else {
+		if err := token.GenerateKeypair(keypairPrefix); err != nil {
+			glog.Errorf("Error generating key pair: %v", err)
+		}
 	}
 
 	var err error
