@@ -110,9 +110,11 @@ func init() {
 
 	RootCmd.Flags().DurationVar(&tokenTtl, "token-ttl", 24*time.Hour, "TTL for the token")
 
-	RootCmd.Flags().StringVar(&keypairPrefix, "keypair-prefix", "signing", "Path prefix for keypair files.")
+	RootCmd.PersistentFlags().StringVar(&keypairPrefix, "keypair-prefix", "signing", "Path prefix for keypair files.")
+	RootCmd.AddCommand(GenKeypairCmd)
 
 	viper.BindPFlags(RootCmd.Flags())
+	viper.BindPFlags(RootCmd.PersistentFlags())
 	flag.CommandLine.Parse([]string{})
 }
 
@@ -243,4 +245,23 @@ func serve() error {
 
 	glog.Fatal(server.ListenAndServeTLS(serverTlsCertFile, serverTlsPrivateKeyFile))
 	return nil
+}
+
+var GenKeypairCmd = &cobra.Command{
+	Use:   "gen-keypair",
+	Short: "Generate keypair for token signing/verification and exit",
+	Long: `Generates a keypair with prefix specified by --keypair-prefix.
+	Keypair is written into <keypair-prefix>.priv and <keypair-prefix>.pub.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		gen_keypair()
+	},
+}
+
+func gen_keypair() {
+	keypairPrefix = viper.GetString("keypair-prefix")
+	if err := token.GenerateKeypair(keypairPrefix); err != nil {
+		glog.Errorf("Error generating key pair: %v", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Generated keypair in %s.priv %s.pub\n", keypairPrefix, keypairPrefix)
 }
