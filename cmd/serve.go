@@ -126,7 +126,7 @@ func initConfig() {
 		}
 
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".kubernetes-ldap.yaml")
+		viper.SetConfigName(".kubernetes-ldap")
 	}
 
 	// If a config file is found, read it in.
