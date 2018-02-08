@@ -55,6 +55,9 @@ var (
 	ldapUseInsecure         bool
 
 	tokenTtl time.Duration
+
+	// prefix for keypair files (.priv and .pub)
+	keypairPrefix string
 )
 
 // RootCmd represents the serve command
@@ -69,9 +72,6 @@ var RootCmd = &cobra.Command{
 		serve()
 	},
 }
-
-// KeypairFilename to be used
-const KeypairFilename = "signing"
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -110,7 +110,11 @@ func init() {
 
 	RootCmd.Flags().DurationVar(&tokenTtl, "token-ttl", 24*time.Hour, "TTL for the token")
 
+	RootCmd.PersistentFlags().StringVar(&keypairPrefix, "keypair-prefix", "signing", "Path prefix for keypair files.")
+	RootCmd.AddCommand(GenKeypairCmd)
+
 	viper.BindPFlags(RootCmd.Flags())
+	viper.BindPFlags(RootCmd.PersistentFlags())
 	flag.CommandLine.Parse([]string{})
 }
 
@@ -169,6 +173,7 @@ func validate() {
 		fmt.Fprintf(os.Stderr, "file %s does not exist\n", serverTlsPrivateKeyFile)
 		os.Exit(1)
 	}
+	keypairPrefix = viper.GetString("keypair-prefix")
 }
 
 func requireFlag(flagName string, flagValue string) {
@@ -179,18 +184,21 @@ func requireFlag(flagName string, flagValue string) {
 }
 
 func serve() error {
-	keypairFilename := "signing"
-	if err := token.GenerateKeypair(keypairFilename); err != nil {
-		glog.Errorf("Error generating key pair: %v", err)
+	if token.KeypairExists(keypairPrefix) {
+		glog.Infof("Using existing keypair in %v", keypairPrefix)
+	} else {
+		if err := token.GenerateKeypair(keypairPrefix); err != nil {
+			glog.Errorf("Error generating key pair: %v", err)
+		}
 	}
 
 	var err error
-	tokenSigner, err := token.NewSigner(keypairFilename)
+	tokenSigner, err := token.NewSigner(keypairPrefix)
 	if err != nil {
 		glog.Errorf("Error creating token issuer: %v", err)
 	}
 
-	tokenVerifier, err := token.NewVerifier(keypairFilename)
+	tokenVerifier, err := token.NewVerifier(keypairPrefix)
 	if err != nil {
 		glog.Errorf("Error creating token verifier: %v", err)
 	}
@@ -237,4 +245,23 @@ func serve() error {
 
 	glog.Fatal(server.ListenAndServeTLS(serverTlsCertFile, serverTlsPrivateKeyFile))
 	return nil
+}
+
+var GenKeypairCmd = &cobra.Command{
+	Use:   "gen-keypair",
+	Short: "Generate keypair for token signing/verification and exit",
+	Long: `Generates a keypair with prefix specified by --keypair-prefix.
+	Keypair is written into <keypair-prefix>.priv and <keypair-prefix>.pub.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		gen_keypair()
+	},
+}
+
+func gen_keypair() {
+	keypairPrefix = viper.GetString("keypair-prefix")
+	if err := token.GenerateKeypair(keypairPrefix); err != nil {
+		glog.Errorf("Error generating key pair: %v", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Generated keypair in %s.priv %s.pub\n", keypairPrefix, keypairPrefix)
 }
