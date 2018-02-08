@@ -55,6 +55,9 @@ var (
 	ldapUseInsecure         bool
 
 	tokenTtl time.Duration
+
+	// Path to secret part of keypair. Public part will have .pub appended.
+	keypairFile string
 )
 
 // RootCmd represents the serve command
@@ -69,9 +72,6 @@ var RootCmd = &cobra.Command{
 		serve()
 	},
 }
-
-// KeypairFilename to be used
-const KeypairFilename = "signing"
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -109,6 +109,9 @@ func init() {
 	RootCmd.Flags().BoolVar(&ldapUseInsecure, "use-insecure", false, "Disable LDAP TLS")
 
 	RootCmd.Flags().DurationVar(&tokenTtl, "token-ttl", 24*time.Hour, "TTL for the token")
+
+	RootCmd.Flags().StringVar(&keypairFile, "keypair-file", "signing", `Path to private key used for token signing.
+	Note that the same file with .pub appended will be used as public key for token validation.`)
 
 	viper.BindPFlags(RootCmd.Flags())
 	flag.CommandLine.Parse([]string{})
@@ -169,6 +172,7 @@ func validate() {
 		fmt.Fprintf(os.Stderr, "file %s does not exist\n", serverTlsPrivateKeyFile)
 		os.Exit(1)
 	}
+	keypairFile = viper.GetString("keypair-file")
 }
 
 func requireFlag(flagName string, flagValue string) {
@@ -179,18 +183,17 @@ func requireFlag(flagName string, flagValue string) {
 }
 
 func serve() error {
-	keypairFilename := "signing"
-	if err := token.GenerateKeypair(keypairFilename); err != nil {
+	if err := token.GenerateKeypair(keypairFile); err != nil {
 		glog.Errorf("Error generating key pair: %v", err)
 	}
 
 	var err error
-	tokenSigner, err := token.NewSigner(keypairFilename)
+	tokenSigner, err := token.NewSigner(keypairFile)
 	if err != nil {
 		glog.Errorf("Error creating token issuer: %v", err)
 	}
 
-	tokenVerifier, err := token.NewVerifier(keypairFilename)
+	tokenVerifier, err := token.NewVerifier(keypairFile)
 	if err != nil {
 		glog.Errorf("Error creating token verifier: %v", err)
 	}
