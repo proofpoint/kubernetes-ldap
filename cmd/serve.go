@@ -56,8 +56,8 @@ var (
 
 	tokenTtl time.Duration
 
-	// prefix for keypair files (.priv and .pub)
-	keypairPrefix string
+	// Path to secret part of keypair. Public part will have .pub appended.
+	keypairFile string
 )
 
 // RootCmd represents the serve command
@@ -110,7 +110,8 @@ func init() {
 
 	RootCmd.Flags().DurationVar(&tokenTtl, "token-ttl", 24*time.Hour, "TTL for the token")
 
-	RootCmd.Flags().StringVar(&keypairPrefix, "keypair-prefix", "signing", "Path prefix for keypair files.")
+	RootCmd.Flags().StringVar(&keypairFile, "keypair-file", "signing", `Path to private key used for token signing.
+	Note that the same file with .pub appended will be used as public key for token validation.`)
 
 	viper.BindPFlags(RootCmd.Flags())
 	flag.CommandLine.Parse([]string{})
@@ -171,7 +172,7 @@ func validate() {
 		fmt.Fprintf(os.Stderr, "file %s does not exist\n", serverTlsPrivateKeyFile)
 		os.Exit(1)
 	}
-	keypairPrefix = viper.GetString("keypair-prefix")
+	keypairFile = viper.GetString("keypair-file")
 }
 
 func requireFlag(flagName string, flagValue string) {
@@ -182,17 +183,17 @@ func requireFlag(flagName string, flagValue string) {
 }
 
 func serve() error {
-	if err := token.GenerateKeypair(keypairPrefix); err != nil {
+	if err := token.GenerateKeypair(keypairFile); err != nil {
 		glog.Errorf("Error generating key pair: %v", err)
 	}
 
 	var err error
-	tokenSigner, err := token.NewSigner(keypairPrefix)
+	tokenSigner, err := token.NewSigner(keypairFile)
 	if err != nil {
 		glog.Errorf("Error creating token issuer: %v", err)
 	}
 
-	tokenVerifier, err := token.NewVerifier(keypairPrefix)
+	tokenVerifier, err := token.NewVerifier(keypairFile)
 	if err != nil {
 		glog.Errorf("Error creating token verifier: %v", err)
 	}

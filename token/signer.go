@@ -28,7 +28,7 @@ func NewSigner(filename string) (Signer, error) {
 	// of it. Go correctly checks that points are on the curve. A
 	// version of Go > 1.4 is recommended, because ECDSA signatures
 	// in previous versions are unsafe.
-	key, err := ioutil.ReadFile(filename + ".priv")
+	key, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}

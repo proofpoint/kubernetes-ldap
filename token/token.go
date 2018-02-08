@@ -38,7 +38,7 @@ func GenerateKeypair(filename string) (err error) {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(filename+".priv", keyPEM, os.FileMode(0600))
+	err = ioutil.WriteFile(filename, keyPEM, os.FileMode(0600))
 	if err != nil {
 		return
 	}
