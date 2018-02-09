@@ -47,3 +47,4 @@ vendor/
 *.crt
 *.cert
 *.key
+kubernetes-ldap
