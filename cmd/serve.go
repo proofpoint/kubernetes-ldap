@@ -109,8 +109,8 @@ func init() {
 	RootCmd.Flags().BoolVar(&ldapUseInsecure, "use-insecure", false, "Disable LDAP TLS")
 
 	RootCmd.Flags().DurationVar(&tokenTtl, "token-ttl", 24*time.Hour, "TTL for the token")
-	RootCmd.Flags().StringVar(&keypairDir, "keypair-dir", "./", "directory that contains keypair for signing/verifying tokens. Defaults to current directory")
-	RootCmd.Flags().BoolVar(&genKeypair, "gen-keypair", false, "generate keypair if not present")
+	RootCmd.Flags().StringVar(&keypairDir, "keypair-dir", "./keypair", "directory that contains keypair for signing/verifying tokens. Defaults to ./keypair")
+	RootCmd.Flags().BoolVar(&genKeypair, "gen-keypair", false, "generate new keypair")
 
 	viper.BindPFlags(RootCmd.Flags())
 	flag.CommandLine.Parse([]string{})
@@ -181,12 +181,16 @@ func requireFlag(flagName string, flagValue string) {
 }
 
 func serve() error {
-	if !token.KeypairExists(keypairDir) && genKeypair {
-		fmt.Printf("generating keypair in: %s\n", keypairDir)
+	if genKeypair {
 		if err := token.GenerateKeypair(keypairDir); err != nil {
 			glog.Errorf("Error generating key pair: %v", err)
 			os.Exit(1)
 		}
+	}
+
+	if !token.KeypairExists(keypairDir) {
+		glog.Errorf("keypair not found in dir %q", keypairDir)
+		os.Exit(1)
 	}
 
 	var err error
