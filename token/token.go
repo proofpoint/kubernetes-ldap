@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	jose "gopkg.in/square/go-jose.v1"
 )
@@ -27,9 +28,29 @@ type AuthToken struct {
 	Expiration int64
 }
 
+const fileprefix = "signing"
+
+func getPrivateKeyFilename(dirname string) string {
+	return filepath.Join(dirname, fmt.Sprintf("%s.%s", fileprefix, "priv"))
+}
+
+func getPublicKeyFilename(dirname string) string {
+	return filepath.Join(dirname, fmt.Sprintf("%s.%s", fileprefix, "pub"))
+}
+
+//KeypairExists checks if keypair exists already
+func KeypairExists(dirname string) bool {
+	_, err1 := ioutil.ReadFile(getPrivateKeyFilename(dirname))
+	_, err2 := ioutil.ReadFile(getPublicKeyFilename(dirname))
+	return (err1 == nil && err2 == nil)
+}
+
 // GenerateKeypair generates a public and private ECDSA key, to be
 // used for signing and verifying authentication tokens.
-func GenerateKeypair(filename string) (err error) {
+func GenerateKeypair(dirname string) (err error) {
+	privateFile := getPrivateKeyFilename(dirname)
+	publicFile := getPublicKeyFilename(dirname)
+
 	priv, err := ecdsa.GenerateKey(curveEll, rand.Reader)
 	if err != nil {
 		return
@@ -38,7 +59,7 @@ func GenerateKeypair(filename string) (err error) {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(filename+".priv", keyPEM, os.FileMode(0600))
+	err = ioutil.WriteFile(privateFile, keyPEM, os.FileMode(0600))
 	if err != nil {
 		return
 	}
@@ -47,6 +68,6 @@ func GenerateKeypair(filename string) (err error) {
 	if err != nil {
 		return fmt.Errorf("Error marshalling public key: %v", err)
 	}
-	err = ioutil.WriteFile(filename+".pub", pubKeyPEM, os.FileMode(0644))
+	err = ioutil.WriteFile(publicFile, pubKeyPEM, os.FileMode(0644))
 	return
 }

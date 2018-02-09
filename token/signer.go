@@ -23,12 +23,13 @@ type ecdsaSigner struct {
 
 // NewSigner is, for the moment, a thin wrapper around Square's
 // go-jose library to issue ECDSA-P256 JWS tokens.
-func NewSigner(filename string) (Signer, error) {
+func NewSigner(dirname string) (Signer, error) {
 	// We use P-256, because Go has a constant-time implementation
 	// of it. Go correctly checks that points are on the curve. A
 	// version of Go > 1.4 is recommended, because ECDSA signatures
 	// in previous versions are unsafe.
-	key, err := ioutil.ReadFile(filename + ".priv")
+	privateKeyFile := getPrivateKeyFilename(dirname)
+	key, err := ioutil.ReadFile(privateKeyFile)
 	if err != nil {
 		return nil, err
 	}
