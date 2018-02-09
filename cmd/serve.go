@@ -109,7 +109,7 @@ func init() {
 	RootCmd.Flags().BoolVar(&ldapUseInsecure, "use-insecure", false, "Disable LDAP TLS")
 
 	RootCmd.Flags().DurationVar(&tokenTtl, "token-ttl", 24*time.Hour, "TTL for the token")
-	RootCmd.Flags().StringVar(&keypairDir, "keypair-dir", "./keypair", "directory that contains keypair for signing/verifying tokens. Defaults to ./keypair")
+	RootCmd.Flags().StringVar(&keypairDir, "keypair-dir", "keypair", "directory that contains keypair for signing/verifying tokens. Defaults to 'keypair'")
 	RootCmd.Flags().BoolVar(&genKeypair, "gen-keypair", false, "generate new keypair")
 
 	viper.BindPFlags(RootCmd.Flags())
