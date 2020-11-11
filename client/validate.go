@@ -37,7 +37,7 @@ func validatePluginVersion(version string) error {
 	}
 
 	if currentVersion.LessThan(minVersion) {
-		return fmt.Errorf("unsupported version %q of k8sldapctl. minimum version required is %q", currentVersion, minVersion)
+		return fmt.Errorf("unsupported version %q of k8sldapctl. minimum version required is %q", version, MinimumPluginVersion)
 	}
 
 	return nil
@@ -55,7 +55,7 @@ func validateKubectlVersion(version string) error {
 	}
 
 	if currentVersion.LessThan(minVersion) {
-		return fmt.Errorf("unsupported version %q of kubectl. minimum version required is %q", currentVersion, minVersion)
+		return fmt.Errorf("unsupported version %q of kubectl. minimum version required is %q", version, MinimumKubectlVersion)
 	}
 
 	return nil

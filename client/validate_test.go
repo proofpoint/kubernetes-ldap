@@ -34,7 +34,7 @@ func TestValidate(t *testing.T) {
 			name:           "plugin version is less than minimum",
 			pluginVersion:  "1.2",
 			kubectlVersion: "1.14.0",
-			msg:            `unsupported version "1.2.0" of k8sldapctl. minimum version required is "1.4.0"`,
+			msg:            `unsupported version "1.2" of k8sldapctl. minimum version required is "1.4"`,
 		},
 		{
 			name:           "kubectl version is less than minimum",
